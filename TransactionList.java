@@ -3,6 +3,7 @@
 
 import java.util.ListIterator;
 
+
 public class TransactionList {
 	
 	private Node listHead;
@@ -62,5 +63,21 @@ public class TransactionList {
 		assert(false);
 		return targetNode.transaction;
 		}
+	
+	public int getLength() {
+		
+		Node target = listHead;
+		int index = 0;
+		
+		while(target != null) {
+			
+			index++;
+			target = target.nextNode;
+		}
+		
+		return index;
+	}
 
 }
+
+
