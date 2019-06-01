@@ -64,17 +64,21 @@ public class MainGUI extends JPanel{
 		JButton saveTransButton = new JButton("Save Transactions");
 		saveTransButton.setBounds(10,60,150,40);
 		
-		//Button for analyzing a month's list of transactions
-		JButton transAnalysisButton = new JButton("Analysis");
-		transAnalysisButton.setBounds(10,110,150,40);
+		//Button for analyzing a month's list of transactions by category
+		JButton categoryTransAnalysisButton = new JButton("Category Analysis");
+		categoryTransAnalysisButton.setBounds(10,110,150,40);
+		
+		//Button for analyzing a month's list of transactions by day
+		JButton dayTransAnalysisButton = new JButton("Chage Over Time");
+		dayTransAnalysisButton.setBounds(10,160,150,40);
 		
 		//goes back to the month list
 		JButton backToMonthsButton = new JButton("Back");
-		backToMonthsButton.setBounds(10,210,150,40);
+		backToMonthsButton.setBounds(10,260,150,40);
 		
 		//reads transactions into a month's list from a statement
 		JButton readFromStatement = new JButton("Read Statement");
-		readFromStatement.setBounds(10,160,150,40);
+		readFromStatement.setBounds(10,210,150,40);
 		
 		//label for day text field
 		JLabel transDayLabel = new JLabel();
@@ -114,6 +118,25 @@ public class MainGUI extends JPanel{
 		//========================================================================
 		
 		//NEED BUTTONS FOR YEARLY ANALYSIS HERE-----------------------------------------------
+		categoryTransAnalysisButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent m) {
+				CategoryPieChart monthCategoryPieChart = new CategoryPieChart();
+				monthCategoryPieChart.initializePieChart();
+				monthCategoryPieChart.addMonth(monthsInList.getTarget(currentMonthSelect));
+				monthCategoryPieChart.drawPieChart();
+			}
+		});
+		
+		dayTransAnalysisButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent m) {
+				MonthBalanceLineGraph monthLineGraph = new MonthBalanceLineGraph();
+				monthLineGraph.initializeLineGraph();
+				monthLineGraph.addMonth(monthsInList.getTarget(currentMonthSelect));
+				monthLineGraph.drawLineGraph();
+			}
+		});
+		
+		
 		
 		//JList implementation for listing month objects
 		DefaultListModel monthListModel = new DefaultListModel();
@@ -143,7 +166,8 @@ public class MainGUI extends JPanel{
 							//sets relevant components to be visible
 							addTransaction.setVisible(true);
 							saveTransButton.setVisible(true);
-							transAnalysisButton.setVisible(true);
+							categoryTransAnalysisButton.setVisible(true);
+							dayTransAnalysisButton.setVisible(true);
 							backToMonthsButton.setVisible(true);
 							readFromStatement.setVisible(true);
 							
@@ -161,7 +185,8 @@ public class MainGUI extends JPanel{
 					//sets non-relevant components to be invisible
 					addTransaction.setVisible(false);
 					saveTransButton.setVisible(false);
-					transAnalysisButton.setVisible(false);
+					categoryTransAnalysisButton.setVisible(false);
+					dayTransAnalysisButton.setVisible(false);
 					backToMonthsButton.setVisible(false);
 					readFromStatement.setVisible(false);
 					
@@ -215,7 +240,8 @@ public class MainGUI extends JPanel{
 							//sets former display's components to be visible
 							addTransaction.setVisible(true);
 							saveTransButton.setVisible(true);
-							transAnalysisButton.setVisible(true);
+							categoryTransAnalysisButton.setVisible(true);
+							dayTransAnalysisButton.setVisible(true);
 							backToMonthsButton.setVisible(true);
 							readFromStatement.setVisible(true);
 						}
@@ -243,7 +269,8 @@ public class MainGUI extends JPanel{
 						//sets irrelevant components to be invisible
 						addTransaction.setVisible(false);
 						saveTransButton.setVisible(false);
-						transAnalysisButton.setVisible(false);
+						categoryTransAnalysisButton.setVisible(false);
+						dayTransAnalysisButton.setVisible(false);
 						backToMonthsButton.setVisible(false);
 						readFromStatement.setVisible(false);
 						
@@ -256,6 +283,7 @@ public class MainGUI extends JPanel{
 			addMonthButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent a) {
 						
+					///*
 					//hides non-relevant options for this task
 					saveMonthsButton.setVisible(false);
 					addMonthButton.setVisible(false);
@@ -271,7 +299,11 @@ public class MainGUI extends JPanel{
 					
 					yearText.setText("");
 					monthText.setText("");
-									
+					//*/
+					
+					//CategoryPieChart pieChart = new CategoryPieChart();
+					//pieChart.initializePieChart(monthsInList);
+					//pieChart.drawPieChart();
 				}	
 			});
 					
@@ -358,7 +390,8 @@ public class MainGUI extends JPanel{
 		add(loadMonth);
 		add(addTransaction);
 		add(saveTransButton);
-		add(transAnalysisButton);
+		add(categoryTransAnalysisButton);
+		add(dayTransAnalysisButton);
 		add(backToMonthsButton);
 		add(readFromStatement);
 		add(transDayLabel);
@@ -382,7 +415,8 @@ public class MainGUI extends JPanel{
 		loadMonth.setVisible(false);
 		addTransaction.setVisible(false);
 		saveTransButton.setVisible(false);
-		transAnalysisButton.setVisible(false);
+		categoryTransAnalysisButton.setVisible(false);
+		dayTransAnalysisButton.setVisible(false);
 		backToMonthsButton.setVisible(false);
 		readFromStatement.setVisible(false);
 		transDayLabel.setVisible(false);
@@ -435,11 +469,12 @@ public class MainGUI extends JPanel{
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		mainFrame.setContentPane(new MainGUI());
-		
+				
 		mainFrame.setSize(500, 600);
 		
 		mainFrame.setLayout(null);
 		mainFrame.setVisible(true);
+		
 	}
 	
 }
