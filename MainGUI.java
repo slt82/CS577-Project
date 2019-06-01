@@ -1,17 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
 import java.util.ListIterator;
 import java.util.Locale;
 
 public class MainGUI extends JPanel{
 	
 	int currentMonthSelect = 0;
-	String[] allowableMonths = {"01", "02", "03", "04", "05", "06", 
-			"07", "08", "09", "10", "11", "12"};
-	String[] allowableDays = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", 
-			"11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
-			"21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
 	
 	public MainGUI() {
 		
@@ -45,7 +41,7 @@ public class MainGUI extends JPanel{
 		yearText.setBounds(10,50,150,20);
 		
 		//text field for user month input
-		JComboBox monthComboBox = new JComboBox(allowableMonths);
+		JComboBox monthComboBox = new JComboBox(Constants.allowableMonths);
 		monthComboBox.setBounds(10, 110, 150, 20);
 		
 		//button for creating a new month and adding to lists
@@ -110,7 +106,7 @@ public class MainGUI extends JPanel{
 		transValField.setBounds(10,80,150,20);
 		
 		//field for user input of day
-		JComboBox<String> transDayField = new JComboBox<String>(allowableDays);
+		JComboBox<String> transDayField = new JComboBox<String>(Constants.longMonthDays);
 		transDayField.setBounds(10,40,150,20);
 		
 		//button for creating new transaction object from data collected in above fields
@@ -203,9 +199,32 @@ public class MainGUI extends JPanel{
 					transValField.setVisible(true);
 					transInField.setVisible(true);
 					transDayField.setVisible(true);
+					transDayField.removeAllItems();
 					createTransButton.setVisible(true);
 					cancelTransButton.setVisible(true);
 					
+					String currentMonth = monthsInList.getTarget(currentMonthSelect).getMonth();					
+					if(Arrays.asList(Constants.longMonths).contains(currentMonth))
+					{
+						for(String item : Constants.longMonthDays)
+						{
+							transDayField.addItem(item);
+						}
+					}
+					else if(Arrays.asList(Constants.mediumMonths).contains(currentMonth))
+					{
+						for(String item : Constants.mediumMonthDays)
+						{
+							transDayField.addItem(item);
+						}
+					}
+					else if(Arrays.asList(Constants.shortMonths).contains(currentMonth))
+					{
+						for(String item : Constants.shortMonthDays)
+						{
+							transDayField.addItem(item);
+						}
+					}
 				}
 			});
 			
