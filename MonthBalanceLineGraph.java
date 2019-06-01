@@ -13,10 +13,6 @@ public class MonthBalanceLineGraph extends JFrame
 	JFrame lineGraphFrame;
 	MonthList monthList;
 	MonthList selectedMonths;
-	
-	String[] longMonths = {"01", "03", "05", "07", "08", "10", "12"};
-	String[] mediumMonths = {"04", "06", "09", "11"};
-	String[] shortMonths = {"02"};
 
 	//initialize the pie chart
 	public void initializeLineGraph(MonthList allMonths)
@@ -65,31 +61,25 @@ public class MonthBalanceLineGraph extends JFrame
 		int numTransactions = transactionList.getLength();
 		int currentTransaction = 0;
 		XYSeries newMonth = new XYSeries(month.getMonth()+"/"+month.getYear());
-		if(Arrays.asList(longMonths).contains(month.getMonth()))
+		if(Arrays.asList(Constants.longMonths).contains(month.getMonth()))
 		{
-			int day = 1;
-			while(day<=31)
+			for(String day : Constants.longMonthDays)
 			{
-				newMonth.add(day, 0);
-				day++;
+				newMonth.add(Integer.parseInt(day), 0);
 			}
 		}
-		else if(Arrays.asList(mediumMonths).contains(month.getMonth()))
+		else if(Arrays.asList(Constants.mediumMonths).contains(month.getMonth()))
 		{
-			int day = 1;
-			while(day<=30)
+			for(String day : Constants.mediumMonthDays)
 			{
-				newMonth.add(day, 0);
-				day++;
+				newMonth.add(Integer.parseInt(day), 0);
 			}
 		}
-		else if(Arrays.asList(shortMonths).contains(month.getMonth()))
+		else if(Arrays.asList(Constants.shortMonths).contains(month.getMonth()))
 		{
-			int day = 1;
-			while(day<=28)
+			for(String day : Constants.shortMonthDays)
 			{
-				newMonth.add(day, 0);
-				day++;
+				newMonth.add(Integer.parseInt(day), 0);
 			}
 		}
 		while(numTransactions>currentTransaction)
