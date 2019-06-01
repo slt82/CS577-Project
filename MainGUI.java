@@ -206,7 +206,8 @@ public class MainGUI extends JPanel{
 				//action block for creating a new transaction object from user input in text fields
 				createTransButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent a) {
-						
+						try
+						{
 						//collects input from text fields
 						int dayInput = Integer.parseInt(transDayField.getText());
 						float valueInput = Float.parseFloat(transValField.getText());
@@ -254,6 +255,15 @@ public class MainGUI extends JPanel{
 							transInField.setText("");
 							transDayField.setText("");
 							
+						}
+						}
+						catch(Exception e)
+						{
+							//clears text fields
+							//DIALOG BOX EXPLAINING THAT INPUT WAS NOT VALID
+							transValField.setText("");
+							transInField.setText("");
+							transDayField.setText("");
 						}
 					}
 				});
