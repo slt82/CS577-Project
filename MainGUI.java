@@ -258,6 +258,33 @@ public class MainGUI extends JPanel{
 					}
 				});
 				
+				cancelTransButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent a) {
+						//clears text fields
+						transValField.setText("");
+						transInField.setText("");
+						transDayField.setText("");
+						
+						//sets current display components to be invisible to return to former display
+						transDayLabel.setVisible(false);
+						transInTypeLabel.setVisible(false);
+						transValueLabel.setVisible(false);
+						transValField.setVisible(false);
+						transInField.setVisible(false);
+						transDayField.setVisible(false);
+						createTransButton.setVisible(false);
+						cancelTransButton.setVisible(false);
+						
+						//sets former display's components to be visible
+						addTransaction.setVisible(true);
+						saveTransButton.setVisible(true);
+						categoryTransAnalysisButton.setVisible(true);
+						dayTransAnalysisButton.setVisible(true);
+						backToMonthsButton.setVisible(true);
+						readFromStatement.setVisible(true);
+					}
+				});
+				
 				//action block for button that takes user back out of month's transaction menu
 				backToMonthsButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent a) {
