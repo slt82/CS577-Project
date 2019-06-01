@@ -203,7 +203,8 @@ public class MainGUI extends JPanel{
 					createTransButton.setVisible(true);
 					cancelTransButton.setVisible(true);
 					
-					String currentMonth = monthsInList.getTarget(currentMonthSelect).getMonth();					
+					String currentMonth = monthsInList.getTarget(currentMonthSelect).getMonth();	
+					String currentYear = monthsInList.getTarget(currentMonthSelect).getYear();
 					if(Arrays.asList(Constants.longMonths).contains(currentMonth))
 					{
 						for(String item : Constants.longMonthDays)
@@ -218,7 +219,15 @@ public class MainGUI extends JPanel{
 							transDayField.addItem(item);
 						}
 					}
-					else if(Arrays.asList(Constants.shortMonths).contains(currentMonth))
+					else if(Arrays.asList(Constants.shortMonths).contains(currentMonth) && 
+							Constants.isLeapYear(Integer.parseInt(currentYear)))
+					{
+						for(String item : Constants.leapYearDays)
+						{
+							transDayField.addItem(item);
+						}
+					}
+					else
 					{
 						for(String item : Constants.shortMonthDays)
 						{
@@ -371,8 +380,9 @@ public class MainGUI extends JPanel{
 								String mT = (String) monthComboBox.getSelectedItem();
 								
 								//verify input integrity (WORTH IMPROVING FOR BETTER ERROR HANDLING?)
-								if(yT.length() == 4 & mT.length() > 1) {
-									
+								if(Constants.isInteger(yT) && monthComboBox.getSelectedIndex() >= 0) 
+								{
+				
 									//creates the new month class with input at parameters
 									//and adds that to the linked list
 									MonthClass newMonth = new MonthClass(yT, mT);
