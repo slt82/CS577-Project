@@ -75,7 +75,15 @@ public class MonthBalanceLineGraph extends JFrame
 				newMonth.add(Integer.parseInt(day), 0);
 			}
 		}
-		else if(Arrays.asList(Constants.shortMonths).contains(month.getMonth()))
+		else if(Arrays.asList(Constants.shortMonths).contains(month.getMonth()) && 
+				Constants.isLeapYear(Integer.parseInt(month.getYear())))
+		{
+			for(String day : Constants.leapYearDays)
+			{
+				newMonth.add(Integer.parseInt(day), 0);
+			}
+		}
+		else
 		{
 			for(String day : Constants.shortMonthDays)
 			{
