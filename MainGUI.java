@@ -2,10 +2,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ListIterator;
+import java.util.Locale;
 
 public class MainGUI extends JPanel{
 	
 	int currentMonthSelect = 0;
+	String[] allowableMonths = {"01", "02", "03", "04", "05", "06", 
+			"07", "08", "09", "10", "11", "12"};
+	String[] allowableDays = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", 
+			"11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
+			"21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
 	
 	public MainGUI() {
 		
@@ -32,15 +38,15 @@ public class MainGUI extends JPanel{
 		//label for enter month
 		JLabel enterMonth = new JLabel();
 		enterMonth.setBounds(10,70,150,40);
-		enterMonth.setText("Enter the month: ");
+		enterMonth.setText("Select the month: ");
 		
 		//text field for user year input
 		JTextField yearText = new JTextField();
 		yearText.setBounds(10,50,150,20);
 		
 		//text field for user month input
-		JTextField monthText = new JTextField();
-		monthText.setBounds(10,110,150,20);
+		JComboBox monthComboBox = new JComboBox(allowableMonths);
+		monthComboBox.setBounds(10, 110, 150, 20);
 		
 		//button for creating a new month and adding to lists
 		JButton createMonth = new JButton("Create");
@@ -104,7 +110,7 @@ public class MainGUI extends JPanel{
 		transValField.setBounds(10,80,150,20);
 		
 		//field for user input of day
-		JTextField transDayField = new JTextField();
+		JComboBox<String> transDayField = new JComboBox<String>(allowableDays);
 		transDayField.setBounds(10,40,150,20);
 		
 		//button for creating new transaction object from data collected in above fields
@@ -209,7 +215,7 @@ public class MainGUI extends JPanel{
 						try
 						{
 						//collects input from text fields
-						int dayInput = Integer.parseInt(transDayField.getText());
+						int dayInput = Integer.parseInt((String) transDayField.getSelectedItem());
 						float valueInput = Float.parseFloat(transValField.getText());
 						String typeInput = transInField.getText();
 						
@@ -226,7 +232,7 @@ public class MainGUI extends JPanel{
 							//clears text fields
 							transValField.setText("");
 							transInField.setText("");
-							transDayField.setText("");
+							transDayField.setSelectedIndex(-1);
 							
 							//sets current display components to be invisible to return to former display
 							transDayLabel.setVisible(false);
@@ -253,8 +259,7 @@ public class MainGUI extends JPanel{
 							//DIALOG BOX EXPLAINING THAT INPUT WAS NOT VALID
 							transValField.setText("");
 							transInField.setText("");
-							transDayField.setText("");
-							
+							transDayField.setSelectedIndex(-1);							
 						}
 						}
 						catch(Exception e)
@@ -263,7 +268,7 @@ public class MainGUI extends JPanel{
 							//DIALOG BOX EXPLAINING THAT INPUT WAS NOT VALID
 							transValField.setText("");
 							transInField.setText("");
-							transDayField.setText("");
+							transDayField.setSelectedIndex(-1);
 						}
 					}
 				});
@@ -273,7 +278,7 @@ public class MainGUI extends JPanel{
 						//clears text fields
 						transValField.setText("");
 						transInField.setText("");
-						transDayField.setText("");
+						transDayField.setSelectedIndex(-1);
 						
 						//sets current display components to be invisible to return to former display
 						transDayLabel.setVisible(false);
@@ -328,19 +333,14 @@ public class MainGUI extends JPanel{
 					//sets relevant components to be visible
 					enterYear.setVisible(true);
 					enterMonth.setVisible(true);
-					monthText.setVisible(true);
+					monthComboBox.setVisible(true);
 					yearText.setVisible(true);
 					createMonth.setVisible(true);
 					loadMonth.setVisible(true);
 					backFromAddMonth.setVisible(true);
 					
 					yearText.setText("");
-					monthText.setText("");
-					//*/
-					
-					//CategoryPieChart pieChart = new CategoryPieChart();
-					//pieChart.initializePieChart(monthsInList);
-					//pieChart.drawPieChart();
+					monthComboBox.setSelectedIndex(-1);
 				}	
 			});
 					
@@ -349,7 +349,7 @@ public class MainGUI extends JPanel{
 							public void actionPerformed(ActionEvent b) {
 								
 								String yT = yearText.getText();
-								String mT = monthText.getText();
+								String mT = (String) monthComboBox.getSelectedItem();
 								
 								//verify input integrity (WORTH IMPROVING FOR BETTER ERROR HANDLING?)
 								if(yT.length() == 4 & mT.length() > 1) {
@@ -360,7 +360,7 @@ public class MainGUI extends JPanel{
 									monthsInList.addMonthNode(newMonth);
 									
 									yearText.setText("");
-									monthText.setText("");
+									monthComboBox.setSelectedIndex(-1);
 									
 									//hides non-relevant options for this task
 									saveMonthsButton.setVisible(true);
@@ -369,7 +369,7 @@ public class MainGUI extends JPanel{
 									//sets relevant components to be visible
 									enterYear.setVisible(false);
 									enterMonth.setVisible(false);
-									monthText.setVisible(false);
+									monthComboBox.setVisible(false);
 									yearText.setVisible(false);
 									createMonth.setVisible(false);
 									loadMonth.setVisible(false);
@@ -383,8 +383,7 @@ public class MainGUI extends JPanel{
 									
 									//HAVE DIALOG BOX EXPLAINING WRONG INPUT
 									yearText.setText("");
-									monthText.setText("");
-									
+									monthComboBox.setSelectedIndex(-1);									
 								}
 							}
 					});
@@ -399,7 +398,7 @@ public class MainGUI extends JPanel{
 							//sets irrelevant components to be invisible
 							enterYear.setVisible(false);
 							enterMonth.setVisible(false);
-							monthText.setVisible(false);
+							monthComboBox.setVisible(false);
 							yearText.setVisible(false);
 							createMonth.setVisible(false);
 							loadMonth.setVisible(false);
@@ -421,7 +420,7 @@ public class MainGUI extends JPanel{
 		add(saveMonthsButton);
 		add(enterYear);
 		add(enterMonth);
-		add(monthText);
+		add(monthComboBox);
 		add(yearText);
 		add(createMonth);
 		add(loadMonth);
@@ -446,7 +445,7 @@ public class MainGUI extends JPanel{
 		//sets stage for initial GUI options
 		enterYear.setVisible(false);
 		enterMonth.setVisible(false);
-		monthText.setVisible(false);
+		monthComboBox.setVisible(false);
 		yearText.setVisible(false);
 		createMonth.setVisible(false);
 		loadMonth.setVisible(false);
