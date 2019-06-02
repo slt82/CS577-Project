@@ -7,6 +7,7 @@ public class TransactionObject {
 	private int inputType;
 	private String transactionType;
 	private int day;
+	private boolean expense; //This equals true when it is an expense and it is false when it is an income transaction.
 	
 	//default null constructor
 	public TransactionObject() {
@@ -15,16 +16,18 @@ public class TransactionObject {
 		inputType = 0;
 		transactionType = null;
 		day = 0;
+		expense = false;
 	}
 	
 	//alternate TransactionObject constructor for use with user input
-	public TransactionObject(float newDolVal, int newInType, String newTranType, int newDay) {
+	public TransactionObject(float newDolVal, int newInType, String newTranType, int newDay, boolean isExpense) {
 		
 		//mutators for initializing object with non null values
 		dollarValue = newDolVal;
 		inputType = newInType;
 		transactionType = newTranType;
 		day = newDay;
+		expense = isExpense;
 	}
 	
 	//mutator for modifying a transaction's dollar amount
@@ -53,6 +56,11 @@ public class TransactionObject {
 		day = newDay;
 	}
 	
+	protected void modifyIncomeOrExpense(boolean isExpense)
+	{
+		expense = isExpense;
+	}
+	
 	//get method for a transaction's dollar value
 	protected float getDollarValue() {
 		
@@ -75,5 +83,10 @@ public class TransactionObject {
 	protected int getDay() {
 		
 		return day;
+	}
+	
+	protected boolean getExpense()
+	{
+		return expense;
 	}
 }

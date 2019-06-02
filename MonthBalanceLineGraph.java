@@ -97,8 +97,16 @@ public class MonthBalanceLineGraph extends JFrame
 			float transactionValue = transaction.getDollarValue();
 			int index = newMonth.indexOf(transactionDate);
 			double previousValue = (double) newMonth.getY(index);
-			newMonth.update((Number)transactionDate, previousValue+transactionValue);
-			updateLaterDays(newMonth, transactionDate, transactionValue);
+			boolean expense = transaction.getExpense();
+			if(expense)
+			{
+				newMonth.update((Number)transactionDate, previousValue-transactionValue);
+			}
+			else //the transaction is income
+			{
+				newMonth.update((Number)transactionDate, previousValue+transactionValue);
+			}
+			updateLaterDays(newMonth, transactionDate, transactionValue, expense);
 			currentTransaction++;
 		}
 		dataset.addSeries(newMonth);
@@ -106,13 +114,20 @@ public class MonthBalanceLineGraph extends JFrame
 	}
 	
 	//update the future days so that we can keep an accurate record of how much was earned or spent in the month
-	private void updateLaterDays(XYSeries series, int transactionDate, float newValue) 
+	private void updateLaterDays(XYSeries series, int transactionDate, float newValue, boolean expense) 
 	{
 		if(transactionDate<series.getItemCount())
 		{
 			double dayValue = (double) series.getY(series.indexOf(transactionDate+1));
-			series.update((Number)(transactionDate+1), newValue+dayValue);
-			updateLaterDays(series, transactionDate+1, newValue);
+			if(expense)
+			{
+				series.update((Number)(transactionDate+1), dayValue-newValue);
+			}
+			else //transaction is income
+			{
+				series.update((Number)(transactionDate+1), dayValue+newValue);
+			}
+			updateLaterDays(series, transactionDate+1, newValue, expense);
 		}
 	}
 
