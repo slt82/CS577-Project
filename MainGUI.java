@@ -1,10 +1,14 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
+import java.util.ListIterator;
+import java.util.Locale;
 
 public class MainGUI extends JPanel{
 	
 	int currentMonthSelect = 0;
+	int currentTransSelect = 0;
 	
 	public MainGUI() {
 		
@@ -96,16 +100,7 @@ public class MainGUI extends JPanel{
 		
 		//field for user input of input type
 		JTextField transInField = new JTextField();
-		transInField.setBounds(10,130,150,20);
-		
-		//label for expense or income
-		JLabel isExpenseLabel = new JLabel();
-		isExpenseLabel.setBounds(10, 150, 150, 20);
-		isExpenseLabel.setText("Expense or Income");
-		
-		//combo box for expense or income
-		JComboBox isExpenseComboBox = new JComboBox(Constants.isExpenseOptions);
-		isExpenseComboBox.setBounds(10, 180, 150, 20);
+		transInField.setBounds(10,120,150,20);
 		
 		//field for user input of dollar value
 		JTextField transValField = new JTextField();
@@ -117,15 +112,17 @@ public class MainGUI extends JPanel{
 		
 		//button for creating new transaction object from data collected in above fields
 		JButton createTransButton = new JButton("Create");
-		createTransButton.setBounds(10,210,150,40);
+		createTransButton.setBounds(10,170,150,40);
 		
 		//button for canceling new transaction creation and returning to the month's menu
 		JButton cancelTransButton = new JButton("Cancel");
-		cancelTransButton.setBounds(10,260,150,40);
+		cancelTransButton.setBounds(10,220,150,40);
+		
+		JButton modifyTransButton = new JButton("Modify");
+		modifyTransButton.setBounds(10,170,150,40);
 		
 		//========================================================================
 		
-		//NEED BUTTONS FOR YEARLY ANALYSIS HERE-----------------------------------------------
 		categoryTransAnalysisButton.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent m) {
 				CategoryPieChart monthCategoryPieChart = new CategoryPieChart();
@@ -150,10 +147,17 @@ public class MainGUI extends JPanel{
 		DefaultListModel monthListModel = new DefaultListModel();
 		JList monthGUIList = new JList(monthListModel);
 		
+		//JList implementation for listing transaction objects
+		DefaultListModel transListModel = new DefaultListModel();
+		JList transGUIList = new JList(transListModel);
+		
 		JScrollPane monthPane = new JScrollPane(monthGUIList);
 		monthPane.setBounds(200,10,250,500);
+		
+		JScrollPane transPane = new JScrollPane(transGUIList);
+		transPane.setBounds(200,10,250,500);
 			
-			//double click action block on a list item
+			//double click action block on a month list item
 			monthGUIList.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent m) {
 					JList monthGUIList = (JList)m.getSource();
@@ -180,10 +184,147 @@ public class MainGUI extends JPanel{
 							readFromStatement.setVisible(true);
 							
 							//populates list with transactions within month's list
-							populateTransList(monthListModel, monthsInList.getTarget(i).monthTransactions);
+							monthPane.setVisible(false);
+							transPane.setVisible(true);
+							
+							populateTransList(transListModel, monthsInList.getTarget(i).monthTransactions);
 						}
 					}
 				}
+			});
+			
+			//double click action block for transaction list item
+			transGUIList.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent m) {
+					JList transGUIList = (JList)m.getSource();
+					
+					if(m.getClickCount() == 2) {
+						
+						int i = transGUIList.locationToIndex(m.getPoint());
+						
+						MainGUI.this.currentTransSelect = i;
+						
+						if(i >= 0) {
+							
+							//sets non-relevant components to be invisible
+							addTransaction.setVisible(false);
+							saveTransButton.setVisible(false);
+							categoryTransAnalysisButton.setVisible(false);
+							dayTransAnalysisButton.setVisible(false);
+							backToMonthsButton.setVisible(false);
+							readFromStatement.setVisible(false);
+							
+							//sets relevant components visible
+							transDayLabel.setVisible(true);
+							transInTypeLabel.setVisible(true);
+							transValueLabel.setVisible(true);
+							transValField.setVisible(true);
+							transInField.setVisible(true);
+							transDayField.setVisible(true);
+							transDayField.removeAllItems();
+							modifyTransButton.setVisible(true);
+							cancelTransButton.setVisible(true);
+							
+							String currentMonth = monthsInList.getTarget(currentMonthSelect).getMonth();	
+							String currentYear = monthsInList.getTarget(currentMonthSelect).getYear();
+							if(Arrays.asList(Constants.longMonths).contains(currentMonth))
+							{
+								for(String item : Constants.longMonthDays)
+								{
+									transDayField.addItem(item);
+								}
+							}
+							else if(Arrays.asList(Constants.mediumMonths).contains(currentMonth))
+							{
+								for(String item : Constants.mediumMonthDays)
+								{
+									transDayField.addItem(item);
+								}
+							}
+							else if(Arrays.asList(Constants.shortMonths).contains(currentMonth) && 
+									Constants.isLeapYear(Integer.parseInt(currentYear)))
+							{
+								for(String item : Constants.leapYearDays)
+								{
+									transDayField.addItem(item);
+								}
+							}
+							else
+							{
+								for(String item : Constants.shortMonthDays)
+								{
+									transDayField.addItem(item);
+								}
+							}
+							
+						}
+					}
+				}
+			});
+			
+			//modify an existing transaction object
+			modifyTransButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent a) {
+					
+					try
+					{
+						//collects input from text fields
+						int dayInput = Integer.parseInt((String) transDayField.getSelectedItem());
+						float valueInput = Float.parseFloat(transValField.getText());
+						String typeInput = transInField.getText();
+						
+						if(dayInput > 0 & valueInput > 0) {
+							
+							monthsInList.getTarget(currentMonthSelect).monthTransactions.getTarget(currentTransSelect).modifyDay(dayInput);
+							monthsInList.getTarget(currentMonthSelect).monthTransactions.getTarget(currentTransSelect).modifyDolVal(valueInput);
+							monthsInList.getTarget(currentMonthSelect).monthTransactions.getTarget(currentTransSelect).modifyTranType(typeInput);
+							
+							//repopulates the gui pane
+							populateTransList(transListModel, monthsInList.getTarget(currentMonthSelect).monthTransactions);
+							
+							//clears text fields
+							transValField.setText("");
+							transInField.setText("");
+							transDayField.setSelectedIndex(-1);
+							
+							//sets current display components to be invisible to return to former display
+							transDayLabel.setVisible(false);
+							transInTypeLabel.setVisible(false);
+							transValueLabel.setVisible(false);
+							transValField.setVisible(false);
+							transInField.setVisible(false);
+							transDayField.setVisible(false);
+							modifyTransButton.setVisible(false);
+							cancelTransButton.setVisible(false);
+							
+							//sets former display's components to be visible
+							addTransaction.setVisible(true);
+							saveTransButton.setVisible(true);
+							categoryTransAnalysisButton.setVisible(true);
+							dayTransAnalysisButton.setVisible(true);
+							backToMonthsButton.setVisible(true);
+							readFromStatement.setVisible(true);
+						}
+						
+						else {
+							
+							//clears text fields
+							//DIALOG BOX EXPLAINING THAT INPUT WAS NOT VALID
+							transValField.setText("");
+							transInField.setText("");
+							transDayField.setSelectedIndex(-1);							
+						}
+						
+					}						
+					catch(Exception e)
+					{
+						//clears text fields
+						//DIALOG BOX EXPLAINING THAT INPUT WAS NOT VALID
+						transValField.setText("");
+						transInField.setText("");
+						transDayField.setSelectedIndex(-1);
+				}
+			}
 			});
 			
 			//action block for the add transaction button
@@ -201,13 +342,11 @@ public class MainGUI extends JPanel{
 					//sets relevant components visible
 					transDayLabel.setVisible(true);
 					transInTypeLabel.setVisible(true);
-					isExpenseLabel.setVisible(true);
 					transValueLabel.setVisible(true);
 					transValField.setVisible(true);
 					transInField.setVisible(true);
 					transDayField.setVisible(true);
 					transDayField.removeAllItems();
-					isExpenseComboBox.setVisible(true);
 					createTransButton.setVisible(true);
 					cancelTransButton.setVisible(true);
 					
@@ -250,77 +389,61 @@ public class MainGUI extends JPanel{
 					public void actionPerformed(ActionEvent a) {
 						try
 						{
-							//collects input from text fields
-							int dayInput = Integer.parseInt((String) transDayField.getSelectedItem());
-							float valueInput = Float.parseFloat(transValField.getText());
-							String typeInput = transInField.getText();
-							boolean isExpenseInput;
-							if(isExpenseComboBox.getSelectedItem().equals("Expense"))
-							{
-								isExpenseInput = true;
-							}
-							else
-							{
-								isExpenseInput = false;
-							}
+						//collects input from text fields
+						int dayInput = Integer.parseInt((String) transDayField.getSelectedItem());
+						float valueInput = Float.parseFloat(transValField.getText());
+						String typeInput = transInField.getText();
 						
-							if(valueInput > 0) 
-							{
-								//creates new transaction object and adds it the selected month object's list
-								TransactionObject newTransObject = new TransactionObject(valueInput, 1, typeInput, dayInput, isExpenseInput);
-								monthsInList.getTarget(currentMonthSelect).monthTransactions.addTranNode(newTransObject);
+
+						if(dayInput > 0 & valueInput > 0) {
 							
-								//repopulates the gui pane
-								populateTransList(monthListModel, monthsInList.getTarget(currentMonthSelect).monthTransactions);
+							//creates new transaction object and adds it the selected month object's list
+							TransactionObject newTransObject = new TransactionObject(valueInput, 1, typeInput, dayInput);
+							monthsInList.getTarget(currentMonthSelect).monthTransactions.addTranNode(newTransObject);
 							
-								//clears text fields
-								transValField.setText("");
-								transInField.setText("");
-								transDayField.setSelectedIndex(-1);
-								isExpenseComboBox.setSelectedIndex(-1);
+							//repopulates the gui pane
+							populateTransList(transListModel, monthsInList.getTarget(currentMonthSelect).monthTransactions);
 							
-								//sets current display components to be invisible to return to former display
-								transDayLabel.setVisible(false);
-								transInTypeLabel.setVisible(false);
-								isExpenseLabel.setVisible(false);
-								transValueLabel.setVisible(false);
-								transValField.setVisible(false);
-								transInField.setVisible(false);
-								transDayField.setVisible(false);
-								isExpenseComboBox.setVisible(false);
-								createTransButton.setVisible(false);
-								cancelTransButton.setVisible(false);
+							//clears text fields
+							transValField.setText("");
+							transInField.setText("");
+							transDayField.setSelectedIndex(-1);
 							
-								//sets former display's components to be visible
-								addTransaction.setVisible(true);
-								saveTransButton.setVisible(true);
-								categoryTransAnalysisButton.setVisible(true);
-								dayTransAnalysisButton.setVisible(true);
-								backToMonthsButton.setVisible(true);
-								readFromStatement.setVisible(true);
-							}
-							else 
-							{
-								//clears text fields
-								ErrorDialog errorDialog = new ErrorDialog();
-								errorDialog.setErrorMsg("Invalid transaction entered.  Please enter a valid transaction.");
-								errorDialog.showDialog();
-								transValField.setText("");
-								transInField.setText("");
-								transDayField.setSelectedIndex(-1);		
-								isExpenseComboBox.setSelectedIndex(-1);
-							}
+							//sets current display components to be invisible to return to former display
+							transDayLabel.setVisible(false);
+							transInTypeLabel.setVisible(false);
+							transValueLabel.setVisible(false);
+							transValField.setVisible(false);
+							transInField.setVisible(false);
+							transDayField.setVisible(false);
+							createTransButton.setVisible(false);
+							cancelTransButton.setVisible(false);
+							
+							//sets former display's components to be visible
+							addTransaction.setVisible(true);
+							saveTransButton.setVisible(true);
+							categoryTransAnalysisButton.setVisible(true);
+							dayTransAnalysisButton.setVisible(true);
+							backToMonthsButton.setVisible(true);
+							readFromStatement.setVisible(true);
+						}
+						
+						else {
+							
+							//clears text fields
+							//DIALOG BOX EXPLAINING THAT INPUT WAS NOT VALID
+							transValField.setText("");
+							transInField.setText("");
+							transDayField.setSelectedIndex(-1);							
+						}
 						}
 						catch(Exception e)
 						{
 							//clears text fields
-							ErrorDialog errorDialog = new ErrorDialog();
-							errorDialog.setErrorMsg("Invalid transaction entered.  Please enter a valid transaction.");
-							errorDialog.showDialog();
+							//DIALOG BOX EXPLAINING THAT INPUT WAS NOT VALID
 							transValField.setText("");
 							transInField.setText("");
 							transDayField.setSelectedIndex(-1);
-							isExpenseComboBox.setSelectedIndex(-1);
 						}
 					}
 				});
@@ -331,19 +454,17 @@ public class MainGUI extends JPanel{
 						transValField.setText("");
 						transInField.setText("");
 						transDayField.setSelectedIndex(-1);
-						isExpenseComboBox.setSelectedIndex(-1);
 						
 						//sets current display components to be invisible to return to former display
 						transDayLabel.setVisible(false);
 						transInTypeLabel.setVisible(false);
-						isExpenseLabel.setVisible(false);
 						transValueLabel.setVisible(false);
 						transValField.setVisible(false);
 						transInField.setVisible(false);
 						transDayField.setVisible(false);
-						isExpenseComboBox.setVisible(false);
 						createTransButton.setVisible(false);
 						cancelTransButton.setVisible(false);
+						modifyTransButton.setVisible(false);
 						
 						//sets former display's components to be visible
 						addTransaction.setVisible(true);
@@ -371,6 +492,9 @@ public class MainGUI extends JPanel{
 						backToMonthsButton.setVisible(false);
 						readFromStatement.setVisible(false);
 						
+						transPane.setVisible(false);
+						monthPane.setVisible(true);
+						
 						populateList(monthListModel, monthsInList);
 						
 					}
@@ -379,6 +503,8 @@ public class MainGUI extends JPanel{
 			//action block for the add month button
 			addMonthButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent a) {
+						
+					///*
 					//hides non-relevant options for this task
 					saveMonthsButton.setVisible(false);
 					addMonthButton.setVisible(false);
@@ -434,9 +560,8 @@ public class MainGUI extends JPanel{
 								}
 								
 								else {
-									ErrorDialog errorDialog = new ErrorDialog();
-									errorDialog.setErrorMsg("Invalid month entered.  Please enter a valid month.");
-									errorDialog.showDialog();
+									
+									//HAVE DIALOG BOX EXPLAINING WRONG INPUT
 									yearText.setText("");
 									monthComboBox.setSelectedIndex(-1);									
 								}
@@ -487,17 +612,18 @@ public class MainGUI extends JPanel{
 		add(readFromStatement);
 		add(transDayLabel);
 		add(transInTypeLabel);
-		add(isExpenseLabel);
 		add(transValueLabel);
 		add(transValField);
 		add(transInField);
 		add(transDayField);
-		add(isExpenseComboBox);
 		add(createTransButton);
 		add(cancelTransButton);
 		add(backFromAddMonth);
+		add(modifyTransButton);
 		
-		add(monthPane);	
+		add(monthPane);
+		add(transPane);
+		transPane.setVisible(false);
 		
 		//sets stage for initial GUI options
 		enterYear.setVisible(false);
@@ -514,15 +640,14 @@ public class MainGUI extends JPanel{
 		readFromStatement.setVisible(false);
 		transDayLabel.setVisible(false);
 		transInTypeLabel.setVisible(false);
-		isExpenseLabel.setVisible(false);
 		transValueLabel.setVisible(false);
 		transValField.setVisible(false);
 		transInField.setVisible(false);
 		transDayField.setVisible(false);
-		isExpenseComboBox.setVisible(false);
 		createTransButton.setVisible(false);
 		cancelTransButton.setVisible(false);
 		backFromAddMonth.setVisible(false);
+		modifyTransButton.setVisible(false);
 	}
 	
 	//method for populating the pane with Month objects from the linked list
