@@ -619,6 +619,18 @@ public class MainGUI extends JPanel{
 							}
 					});
 					
+					//action block for loading a month file into the program
+					loadMonth.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent a) {
+							
+							LoadFile newLoad = new LoadFile();
+							
+							newLoad.loadAFile(monthsInList);
+							
+							populateList(monthListModel, monthsInList);
+						}
+					});
+					
 					backFromAddMonth.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent a) {
 							
@@ -637,12 +649,30 @@ public class MainGUI extends JPanel{
 						}
 					});
 					
-					//NEED BUTTON EVENT FOR LOADING A MONTH FILE INTO LIST-------------------------------
 			
 			//save months button action block
 			saveMonthsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent a) {
-					//SAVES ALL MONTH OBJECTS BY CALLING SAVE METHOD IN EACH MONTH CLASS
+					
+					int index = 0;
+					
+					while(index < monthsInList.getLength()) {
+						
+						SaveFile saveInstance = new SaveFile();
+						
+						saveInstance.saveAFile(monthsInList.getTarget(index));
+						
+						index++;
+					}
+				}
+			});
+			
+			saveTransButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent a) {
+					
+					SaveFile saveInstance = new SaveFile();
+					
+					saveInstance.saveAFile(monthsInList.getTarget(currentMonthSelect));
 				}
 			});
 		
