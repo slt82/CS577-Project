@@ -81,19 +81,22 @@ public class CategoryPieChart extends JFrame
 		while(numTransactions>currentTransaction)
 		{
 			TransactionObject transaction = transactionList.getTarget(currentTransaction);
-			String description = transaction.getTranType();
-			double tranValue = transaction.getDollarValue();
-			double oldValue;
-			try
+			if(transaction.getExpense())
 			{
-				oldValue = (double)dataset.getValue(description);
+				String description = transaction.getTranType();
+				double tranValue = transaction.getDollarValue();
+				double oldValue;
+				try
+				{
+					oldValue = (double)dataset.getValue(description);
+				}
+				catch(Exception e)
+				{
+					oldValue = 0.0;
+				}
+				double newValue = oldValue+tranValue;
+				dataset.setValue(description, newValue);
 			}
-			catch(Exception e)
-			{
-				oldValue = 0.0;
-			}
-			double newValue = oldValue+tranValue;
-			dataset.setValue(description, newValue);
 			currentTransaction++;
 		}
 		selectedMonths.addMonthNode(month);
