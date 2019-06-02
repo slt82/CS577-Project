@@ -1,7 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
 import java.util.ListIterator;
+import java.util.Locale;
 
 public class MainGUI extends JPanel{
 	
@@ -32,15 +34,15 @@ public class MainGUI extends JPanel{
 		//label for enter month
 		JLabel enterMonth = new JLabel();
 		enterMonth.setBounds(10,70,150,40);
-		enterMonth.setText("Enter the month: ");
+		enterMonth.setText("Select the month: ");
 		
 		//text field for user year input
 		JTextField yearText = new JTextField();
 		yearText.setBounds(10,50,150,20);
 		
 		//text field for user month input
-		JTextField monthText = new JTextField();
-		monthText.setBounds(10,110,150,20);
+		JComboBox monthComboBox = new JComboBox(Constants.allowableMonths);
+		monthComboBox.setBounds(10, 110, 150, 20);
 		
 		//button for creating a new month and adding to lists
 		JButton createMonth = new JButton("Create");
@@ -64,17 +66,21 @@ public class MainGUI extends JPanel{
 		JButton saveTransButton = new JButton("Save Transactions");
 		saveTransButton.setBounds(10,60,150,40);
 		
-		//Button for analyzing a month's list of transactions
-		JButton transAnalysisButton = new JButton("Analysis");
-		transAnalysisButton.setBounds(10,110,150,40);
+		//Button for analyzing a month's list of transactions by category
+		JButton categoryTransAnalysisButton = new JButton("Category Analysis");
+		categoryTransAnalysisButton.setBounds(10,110,150,40);
+		
+		//Button for analyzing a month's list of transactions by day
+		JButton dayTransAnalysisButton = new JButton("Chage Over Time");
+		dayTransAnalysisButton.setBounds(10,160,150,40);
 		
 		//goes back to the month list
 		JButton backToMonthsButton = new JButton("Back");
-		backToMonthsButton.setBounds(10,210,150,40);
+		backToMonthsButton.setBounds(10,260,150,40);
 		
 		//reads transactions into a month's list from a statement
 		JButton readFromStatement = new JButton("Read Statement");
-		readFromStatement.setBounds(10,160,150,40);
+		readFromStatement.setBounds(10,210,150,40);
 		
 		//label for day text field
 		JLabel transDayLabel = new JLabel();
@@ -100,7 +106,7 @@ public class MainGUI extends JPanel{
 		transValField.setBounds(10,80,150,20);
 		
 		//field for user input of day
-		JTextField transDayField = new JTextField();
+		JComboBox<String> transDayField = new JComboBox<String>(Constants.longMonthDays);
 		transDayField.setBounds(10,40,150,20);
 		
 		//button for creating new transaction object from data collected in above fields
@@ -114,6 +120,25 @@ public class MainGUI extends JPanel{
 		//========================================================================
 		
 		//NEED BUTTONS FOR YEARLY ANALYSIS HERE-----------------------------------------------
+		categoryTransAnalysisButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent m) {
+				CategoryPieChart monthCategoryPieChart = new CategoryPieChart();
+				monthCategoryPieChart.initializePieChart();
+				monthCategoryPieChart.addMonth(monthsInList.getTarget(currentMonthSelect));
+				monthCategoryPieChart.drawPieChart();
+			}
+		});
+		
+		dayTransAnalysisButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent m) {
+				MonthBalanceLineGraph monthLineGraph = new MonthBalanceLineGraph();
+				monthLineGraph.initializeLineGraph();
+				monthLineGraph.addMonth(monthsInList.getTarget(currentMonthSelect));
+				monthLineGraph.drawLineGraph();
+			}
+		});
+		
+		
 		
 		//JList implementation for listing month objects
 		DefaultListModel monthListModel = new DefaultListModel();
@@ -143,7 +168,8 @@ public class MainGUI extends JPanel{
 							//sets relevant components to be visible
 							addTransaction.setVisible(true);
 							saveTransButton.setVisible(true);
-							transAnalysisButton.setVisible(true);
+							categoryTransAnalysisButton.setVisible(true);
+							dayTransAnalysisButton.setVisible(true);
 							backToMonthsButton.setVisible(true);
 							readFromStatement.setVisible(true);
 							
@@ -161,7 +187,8 @@ public class MainGUI extends JPanel{
 					//sets non-relevant components to be invisible
 					addTransaction.setVisible(false);
 					saveTransButton.setVisible(false);
-					transAnalysisButton.setVisible(false);
+					categoryTransAnalysisButton.setVisible(false);
+					dayTransAnalysisButton.setVisible(false);
 					backToMonthsButton.setVisible(false);
 					readFromStatement.setVisible(false);
 					
@@ -172,18 +199,51 @@ public class MainGUI extends JPanel{
 					transValField.setVisible(true);
 					transInField.setVisible(true);
 					transDayField.setVisible(true);
+					transDayField.removeAllItems();
 					createTransButton.setVisible(true);
 					cancelTransButton.setVisible(true);
 					
+					String currentMonth = monthsInList.getTarget(currentMonthSelect).getMonth();	
+					String currentYear = monthsInList.getTarget(currentMonthSelect).getYear();
+					if(Arrays.asList(Constants.longMonths).contains(currentMonth))
+					{
+						for(String item : Constants.longMonthDays)
+						{
+							transDayField.addItem(item);
+						}
+					}
+					else if(Arrays.asList(Constants.mediumMonths).contains(currentMonth))
+					{
+						for(String item : Constants.mediumMonthDays)
+						{
+							transDayField.addItem(item);
+						}
+					}
+					else if(Arrays.asList(Constants.shortMonths).contains(currentMonth) && 
+							Constants.isLeapYear(Integer.parseInt(currentYear)))
+					{
+						for(String item : Constants.leapYearDays)
+						{
+							transDayField.addItem(item);
+						}
+					}
+					else
+					{
+						for(String item : Constants.shortMonthDays)
+						{
+							transDayField.addItem(item);
+						}
+					}
 				}
 			});
 			
 				//action block for creating a new transaction object from user input in text fields
 				createTransButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent a) {
-						
+						try
+						{
 						//collects input from text fields
-						int dayInput = Integer.parseInt(transDayField.getText());
+						int dayInput = Integer.parseInt((String) transDayField.getSelectedItem());
 						float valueInput = Float.parseFloat(transValField.getText());
 						String typeInput = transInField.getText();
 						
@@ -200,7 +260,7 @@ public class MainGUI extends JPanel{
 							//clears text fields
 							transValField.setText("");
 							transInField.setText("");
-							transDayField.setText("");
+							transDayField.setSelectedIndex(-1);
 							
 							//sets current display components to be invisible to return to former display
 							transDayLabel.setVisible(false);
@@ -215,7 +275,8 @@ public class MainGUI extends JPanel{
 							//sets former display's components to be visible
 							addTransaction.setVisible(true);
 							saveTransButton.setVisible(true);
-							transAnalysisButton.setVisible(true);
+							categoryTransAnalysisButton.setVisible(true);
+							dayTransAnalysisButton.setVisible(true);
 							backToMonthsButton.setVisible(true);
 							readFromStatement.setVisible(true);
 						}
@@ -226,9 +287,44 @@ public class MainGUI extends JPanel{
 							//DIALOG BOX EXPLAINING THAT INPUT WAS NOT VALID
 							transValField.setText("");
 							transInField.setText("");
-							transDayField.setText("");
-							
+							transDayField.setSelectedIndex(-1);							
 						}
+						}
+						catch(Exception e)
+						{
+							//clears text fields
+							//DIALOG BOX EXPLAINING THAT INPUT WAS NOT VALID
+							transValField.setText("");
+							transInField.setText("");
+							transDayField.setSelectedIndex(-1);
+						}
+					}
+				});
+				
+				cancelTransButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent a) {
+						//clears text fields
+						transValField.setText("");
+						transInField.setText("");
+						transDayField.setSelectedIndex(-1);
+						
+						//sets current display components to be invisible to return to former display
+						transDayLabel.setVisible(false);
+						transInTypeLabel.setVisible(false);
+						transValueLabel.setVisible(false);
+						transValField.setVisible(false);
+						transInField.setVisible(false);
+						transDayField.setVisible(false);
+						createTransButton.setVisible(false);
+						cancelTransButton.setVisible(false);
+						
+						//sets former display's components to be visible
+						addTransaction.setVisible(true);
+						saveTransButton.setVisible(true);
+						categoryTransAnalysisButton.setVisible(true);
+						dayTransAnalysisButton.setVisible(true);
+						backToMonthsButton.setVisible(true);
+						readFromStatement.setVisible(true);
 					}
 				});
 				
@@ -243,7 +339,8 @@ public class MainGUI extends JPanel{
 						//sets irrelevant components to be invisible
 						addTransaction.setVisible(false);
 						saveTransButton.setVisible(false);
-						transAnalysisButton.setVisible(false);
+						categoryTransAnalysisButton.setVisible(false);
+						dayTransAnalysisButton.setVisible(false);
 						backToMonthsButton.setVisible(false);
 						readFromStatement.setVisible(false);
 						
@@ -256,6 +353,7 @@ public class MainGUI extends JPanel{
 			addMonthButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent a) {
 						
+					///*
 					//hides non-relevant options for this task
 					saveMonthsButton.setVisible(false);
 					addMonthButton.setVisible(false);
@@ -263,15 +361,14 @@ public class MainGUI extends JPanel{
 					//sets relevant components to be visible
 					enterYear.setVisible(true);
 					enterMonth.setVisible(true);
-					monthText.setVisible(true);
+					monthComboBox.setVisible(true);
 					yearText.setVisible(true);
 					createMonth.setVisible(true);
 					loadMonth.setVisible(true);
 					backFromAddMonth.setVisible(true);
 					
 					yearText.setText("");
-					monthText.setText("");
-									
+					monthComboBox.setSelectedIndex(-1);
 				}	
 			});
 					
@@ -280,18 +377,19 @@ public class MainGUI extends JPanel{
 							public void actionPerformed(ActionEvent b) {
 								
 								String yT = yearText.getText();
-								String mT = monthText.getText();
+								String mT = (String) monthComboBox.getSelectedItem();
 								
 								//verify input integrity (WORTH IMPROVING FOR BETTER ERROR HANDLING?)
-								if(yT.length() == 4 & mT.length() > 1) {
-									
+								if(Constants.isInteger(yT) && monthComboBox.getSelectedIndex() >= 0) 
+								{
+				
 									//creates the new month class with input at parameters
 									//and adds that to the linked list
 									MonthClass newMonth = new MonthClass(yT, mT);
 									monthsInList.addMonthNode(newMonth);
 									
 									yearText.setText("");
-									monthText.setText("");
+									monthComboBox.setSelectedIndex(-1);
 									
 									//hides non-relevant options for this task
 									saveMonthsButton.setVisible(true);
@@ -300,7 +398,7 @@ public class MainGUI extends JPanel{
 									//sets relevant components to be visible
 									enterYear.setVisible(false);
 									enterMonth.setVisible(false);
-									monthText.setVisible(false);
+									monthComboBox.setVisible(false);
 									yearText.setVisible(false);
 									createMonth.setVisible(false);
 									loadMonth.setVisible(false);
@@ -314,8 +412,7 @@ public class MainGUI extends JPanel{
 									
 									//HAVE DIALOG BOX EXPLAINING WRONG INPUT
 									yearText.setText("");
-									monthText.setText("");
-									
+									monthComboBox.setSelectedIndex(-1);									
 								}
 							}
 					});
@@ -330,7 +427,7 @@ public class MainGUI extends JPanel{
 							//sets irrelevant components to be invisible
 							enterYear.setVisible(false);
 							enterMonth.setVisible(false);
-							monthText.setVisible(false);
+							monthComboBox.setVisible(false);
 							yearText.setVisible(false);
 							createMonth.setVisible(false);
 							loadMonth.setVisible(false);
@@ -352,13 +449,14 @@ public class MainGUI extends JPanel{
 		add(saveMonthsButton);
 		add(enterYear);
 		add(enterMonth);
-		add(monthText);
+		add(monthComboBox);
 		add(yearText);
 		add(createMonth);
 		add(loadMonth);
 		add(addTransaction);
 		add(saveTransButton);
-		add(transAnalysisButton);
+		add(categoryTransAnalysisButton);
+		add(dayTransAnalysisButton);
 		add(backToMonthsButton);
 		add(readFromStatement);
 		add(transDayLabel);
@@ -376,13 +474,14 @@ public class MainGUI extends JPanel{
 		//sets stage for initial GUI options
 		enterYear.setVisible(false);
 		enterMonth.setVisible(false);
-		monthText.setVisible(false);
+		monthComboBox.setVisible(false);
 		yearText.setVisible(false);
 		createMonth.setVisible(false);
 		loadMonth.setVisible(false);
 		addTransaction.setVisible(false);
 		saveTransButton.setVisible(false);
-		transAnalysisButton.setVisible(false);
+		categoryTransAnalysisButton.setVisible(false);
+		dayTransAnalysisButton.setVisible(false);
 		backToMonthsButton.setVisible(false);
 		readFromStatement.setVisible(false);
 		transDayLabel.setVisible(false);
@@ -435,11 +534,12 @@ public class MainGUI extends JPanel{
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		mainFrame.setContentPane(new MainGUI());
-		
+				
 		mainFrame.setSize(500, 600);
 		
 		mainFrame.setLayout(null);
 		mainFrame.setVisible(true);
+		
 	}
 	
 }
