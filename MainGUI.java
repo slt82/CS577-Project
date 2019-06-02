@@ -1,9 +1,6 @@
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
-import java.util.ListIterator;
-import java.util.Locale;
 
 public class MainGUI extends JPanel{
 	
@@ -99,7 +96,16 @@ public class MainGUI extends JPanel{
 		
 		//field for user input of input type
 		JTextField transInField = new JTextField();
-		transInField.setBounds(10,120,150,20);
+		transInField.setBounds(10,130,150,20);
+		
+		//label for expense or income
+		JLabel isExpenseLabel = new JLabel();
+		isExpenseLabel.setBounds(10, 150, 150, 20);
+		isExpenseLabel.setText("Expense or Income");
+		
+		//combo box for expense or income
+		JComboBox isExpenseComboBox = new JComboBox(Constants.isExpenseOptions);
+		isExpenseComboBox.setBounds(10, 180, 150, 20);
 		
 		//field for user input of dollar value
 		JTextField transValField = new JTextField();
@@ -111,11 +117,11 @@ public class MainGUI extends JPanel{
 		
 		//button for creating new transaction object from data collected in above fields
 		JButton createTransButton = new JButton("Create");
-		createTransButton.setBounds(10,170,150,40);
+		createTransButton.setBounds(10,210,150,40);
 		
 		//button for canceling new transaction creation and returning to the month's menu
 		JButton cancelTransButton = new JButton("Cancel");
-		cancelTransButton.setBounds(10,220,150,40);
+		cancelTransButton.setBounds(10,260,150,40);
 		
 		//========================================================================
 		
@@ -195,11 +201,13 @@ public class MainGUI extends JPanel{
 					//sets relevant components visible
 					transDayLabel.setVisible(true);
 					transInTypeLabel.setVisible(true);
+					isExpenseLabel.setVisible(true);
 					transValueLabel.setVisible(true);
 					transValField.setVisible(true);
 					transInField.setVisible(true);
 					transDayField.setVisible(true);
 					transDayField.removeAllItems();
+					isExpenseComboBox.setVisible(true);
 					createTransButton.setVisible(true);
 					cancelTransButton.setVisible(true);
 					
@@ -242,61 +250,77 @@ public class MainGUI extends JPanel{
 					public void actionPerformed(ActionEvent a) {
 						try
 						{
-						//collects input from text fields
-						int dayInput = Integer.parseInt((String) transDayField.getSelectedItem());
-						float valueInput = Float.parseFloat(transValField.getText());
-						String typeInput = transInField.getText();
+							//collects input from text fields
+							int dayInput = Integer.parseInt((String) transDayField.getSelectedItem());
+							float valueInput = Float.parseFloat(transValField.getText());
+							String typeInput = transInField.getText();
+							boolean isExpenseInput;
+							if(isExpenseComboBox.getSelectedItem().equals("Expense"))
+							{
+								isExpenseInput = true;
+							}
+							else
+							{
+								isExpenseInput = false;
+							}
 						
-						//ANY OTHER CHECKS WE SHOULD INSTITUTE HERE?
-						if(dayInput > 0 & dayInput < 31 & valueInput > 0) {
+							if(valueInput > 0) 
+							{
+								//creates new transaction object and adds it the selected month object's list
+								TransactionObject newTransObject = new TransactionObject(valueInput, 1, typeInput, dayInput, isExpenseInput);
+								monthsInList.getTarget(currentMonthSelect).monthTransactions.addTranNode(newTransObject);
 							
-							//creates new transaction object and adds it the selected month object's list
-							TransactionObject newTransObject = new TransactionObject(valueInput, 1, typeInput, dayInput);
-							monthsInList.getTarget(currentMonthSelect).monthTransactions.addTranNode(newTransObject);
+								//repopulates the gui pane
+								populateTransList(monthListModel, monthsInList.getTarget(currentMonthSelect).monthTransactions);
 							
-							//repopulates the gui pane
-							populateTransList(monthListModel, monthsInList.getTarget(currentMonthSelect).monthTransactions);
+								//clears text fields
+								transValField.setText("");
+								transInField.setText("");
+								transDayField.setSelectedIndex(-1);
+								isExpenseComboBox.setSelectedIndex(-1);
 							
-							//clears text fields
-							transValField.setText("");
-							transInField.setText("");
-							transDayField.setSelectedIndex(-1);
+								//sets current display components to be invisible to return to former display
+								transDayLabel.setVisible(false);
+								transInTypeLabel.setVisible(false);
+								isExpenseLabel.setVisible(false);
+								transValueLabel.setVisible(false);
+								transValField.setVisible(false);
+								transInField.setVisible(false);
+								transDayField.setVisible(false);
+								isExpenseComboBox.setVisible(false);
+								createTransButton.setVisible(false);
+								cancelTransButton.setVisible(false);
 							
-							//sets current display components to be invisible to return to former display
-							transDayLabel.setVisible(false);
-							transInTypeLabel.setVisible(false);
-							transValueLabel.setVisible(false);
-							transValField.setVisible(false);
-							transInField.setVisible(false);
-							transDayField.setVisible(false);
-							createTransButton.setVisible(false);
-							cancelTransButton.setVisible(false);
-							
-							//sets former display's components to be visible
-							addTransaction.setVisible(true);
-							saveTransButton.setVisible(true);
-							categoryTransAnalysisButton.setVisible(true);
-							dayTransAnalysisButton.setVisible(true);
-							backToMonthsButton.setVisible(true);
-							readFromStatement.setVisible(true);
-						}
-						
-						else {
-							
-							//clears text fields
-							//DIALOG BOX EXPLAINING THAT INPUT WAS NOT VALID
-							transValField.setText("");
-							transInField.setText("");
-							transDayField.setSelectedIndex(-1);							
-						}
+								//sets former display's components to be visible
+								addTransaction.setVisible(true);
+								saveTransButton.setVisible(true);
+								categoryTransAnalysisButton.setVisible(true);
+								dayTransAnalysisButton.setVisible(true);
+								backToMonthsButton.setVisible(true);
+								readFromStatement.setVisible(true);
+							}
+							else 
+							{
+								//clears text fields
+								ErrorDialog errorDialog = new ErrorDialog();
+								errorDialog.setErrorMsg("Invalid transaction entered.  Please enter a valid transaction.");
+								errorDialog.showDialog();
+								transValField.setText("");
+								transInField.setText("");
+								transDayField.setSelectedIndex(-1);		
+								isExpenseComboBox.setSelectedIndex(-1);
+							}
 						}
 						catch(Exception e)
 						{
 							//clears text fields
-							//DIALOG BOX EXPLAINING THAT INPUT WAS NOT VALID
+							ErrorDialog errorDialog = new ErrorDialog();
+							errorDialog.setErrorMsg("Invalid transaction entered.  Please enter a valid transaction.");
+							errorDialog.showDialog();
 							transValField.setText("");
 							transInField.setText("");
 							transDayField.setSelectedIndex(-1);
+							isExpenseComboBox.setSelectedIndex(-1);
 						}
 					}
 				});
@@ -307,14 +331,17 @@ public class MainGUI extends JPanel{
 						transValField.setText("");
 						transInField.setText("");
 						transDayField.setSelectedIndex(-1);
+						isExpenseComboBox.setSelectedIndex(-1);
 						
 						//sets current display components to be invisible to return to former display
 						transDayLabel.setVisible(false);
 						transInTypeLabel.setVisible(false);
+						isExpenseLabel.setVisible(false);
 						transValueLabel.setVisible(false);
 						transValField.setVisible(false);
 						transInField.setVisible(false);
 						transDayField.setVisible(false);
+						isExpenseComboBox.setVisible(false);
 						createTransButton.setVisible(false);
 						cancelTransButton.setVisible(false);
 						
@@ -352,8 +379,6 @@ public class MainGUI extends JPanel{
 			//action block for the add month button
 			addMonthButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent a) {
-						
-					///*
 					//hides non-relevant options for this task
 					saveMonthsButton.setVisible(false);
 					addMonthButton.setVisible(false);
@@ -409,8 +434,9 @@ public class MainGUI extends JPanel{
 								}
 								
 								else {
-									
-									//HAVE DIALOG BOX EXPLAINING WRONG INPUT
+									ErrorDialog errorDialog = new ErrorDialog();
+									errorDialog.setErrorMsg("Invalid month entered.  Please enter a valid month.");
+									errorDialog.showDialog();
 									yearText.setText("");
 									monthComboBox.setSelectedIndex(-1);									
 								}
@@ -461,10 +487,12 @@ public class MainGUI extends JPanel{
 		add(readFromStatement);
 		add(transDayLabel);
 		add(transInTypeLabel);
+		add(isExpenseLabel);
 		add(transValueLabel);
 		add(transValField);
 		add(transInField);
 		add(transDayField);
+		add(isExpenseComboBox);
 		add(createTransButton);
 		add(cancelTransButton);
 		add(backFromAddMonth);
@@ -486,10 +514,12 @@ public class MainGUI extends JPanel{
 		readFromStatement.setVisible(false);
 		transDayLabel.setVisible(false);
 		transInTypeLabel.setVisible(false);
+		isExpenseLabel.setVisible(false);
 		transValueLabel.setVisible(false);
 		transValField.setVisible(false);
 		transInField.setVisible(false);
 		transDayField.setVisible(false);
+		isExpenseComboBox.setVisible(false);
 		createTransButton.setVisible(false);
 		cancelTransButton.setVisible(false);
 		backFromAddMonth.setVisible(false);
