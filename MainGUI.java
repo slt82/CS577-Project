@@ -241,6 +241,9 @@ public class MainGUI extends JPanel{
 							isExpenseComboBox.setVisible(true);
 							isExpenseLabel.setVisible(true);
 							
+							TransactionObject transaction = 
+									monthsInList.getTarget(currentMonthSelect).monthTransactions.getTarget(currentTransSelect);
+							
 							String currentMonth = monthsInList.getTarget(currentMonthSelect).getMonth();	
 							String currentYear = monthsInList.getTarget(currentMonthSelect).getYear();
 							if(Arrays.asList(Constants.longMonths).contains(currentMonth))
@@ -271,6 +274,18 @@ public class MainGUI extends JPanel{
 								{
 									transDayField.addItem(item);
 								}
+							}
+							
+							transDayField.setSelectedIndex(transaction.getDay()-1);
+							transValField.setText(String.valueOf(transaction.getDollarValue()));
+							transInField.setText(transaction.getTranType());
+							if(transaction.getExpense())
+							{
+								isExpenseComboBox.setSelectedIndex(0);
+							}
+							else
+							{
+								isExpenseComboBox.setSelectedIndex(1);
 							}
 							
 						}
