@@ -303,8 +303,6 @@ public class MainGUI extends JPanel{
 							{
 								//clears text fields
 								ErrorDialog errorDialog = new ErrorDialog();
-								errorDialog.setTitle("Error");
-								errorDialog.setModal(true);
 								errorDialog.setErrorMsg("Invalid transaction entered.  Please enter a valid transaction.");
 								errorDialog.showDialog();
 								transValField.setText("");
@@ -317,8 +315,6 @@ public class MainGUI extends JPanel{
 						{
 							//clears text fields
 							ErrorDialog errorDialog = new ErrorDialog();
-							errorDialog.setTitle("Error");
-							errorDialog.setModal(true);
 							errorDialog.setErrorMsg("Invalid transaction entered.  Please enter a valid transaction.");
 							errorDialog.showDialog();
 							transValField.setText("");
@@ -439,8 +435,6 @@ public class MainGUI extends JPanel{
 								
 								else {
 									ErrorDialog errorDialog = new ErrorDialog();
-									errorDialog.setTitle("Error");
-									errorDialog.setModal(true);
 									errorDialog.setErrorMsg("Invalid month entered.  Please enter a valid month.");
 									errorDialog.showDialog();
 									yearText.setText("");
