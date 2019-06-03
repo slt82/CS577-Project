@@ -690,6 +690,21 @@ public class MainGUI extends JPanel{
 					saveInstance.saveAFile(monthsInList.getTarget(currentMonthSelect));
 				}
 			});
+			
+			readFromStatement.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent a) {
+					ParseStatement parseStatement = new ParseStatement();
+					
+					try {
+						parseStatement.readStatement(monthsInList.getTarget(currentMonthSelect));
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					populateTransList(transListModel, monthsInList.getTarget(currentMonthSelect).monthTransactions);
+				}
+			});
 		
 		//adds elements to the frame
 		add(addMonthButton);
